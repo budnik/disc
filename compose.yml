@@ -1,0 +1,35 @@
+version: '2'
+services:
+  discourse:
+    depends_on:
+      - postgres
+      - redis
+    build: ../discourse2/
+    command: bin/bundle exec puma -b tcp://0:3001
+    ports:
+      - "3001:3001"
+    tmpfs:
+      - /tmp
+    environment: &environment
+      - DATABASE_URL=postgresql://postgres@postgres/discourse
+      - DISCOURSE_DB_HOST=postgres
+      - DISCOURSE_DB_USERNAME=postgres
+      - DISCOURSE_HOSTNAME=discourse.vco.dev
+      - REDIS_URL=redis://redis/15
+      - DISCOURSE_REDIS_HOST=redis
+      - DISCOURSE_REDIS_DB=15
+      - BUNDLE_PATH=/bundle
+      - PATH=/discourse/bin:/usr/local/bundle/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      - DISCOURSE_SMTP_ADDRESS=mailcatcher
+      - DISCOURSE_SMTP_PORT=1025
+      - DISCOURSE_PORT=3001
+  # discourse_sidekiq:
+  #   build: ../discourse2/
+  #   command: 'bundle exec sidekiq -q critical,low,default'
+  #   depends_on:
+  #     - discourse
+  #     - redis
+  #   tmpfs:
+  #     - /discourse/log
+  #     - /discourse/tmp
+  #   environment: *environment
